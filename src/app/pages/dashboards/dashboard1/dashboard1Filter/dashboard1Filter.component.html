@@ -1,0 +1,11 @@
+<h2 mat-dialog-title>Buscar por GTINs</h2>
+<mat-dialog-content>
+    <mat-form-field class="w-100" appearance="fill">
+        <mat-label>Ingresa los GTINs</mat-label>
+        <textarea matInput rows="5" [(ngModel)]="gtinList"  (input)="onGtinInput($event)" placeholder="Uno por línea o separados por coma"></textarea>
+    </mat-form-field>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+    <button mat-raised-button color="warn" (click)="dialogRef.close()">Cancelar</button>
+    <button mat-raised-button color="primary" (click)="confirm()">Buscar</button>
+</mat-dialog-actions>

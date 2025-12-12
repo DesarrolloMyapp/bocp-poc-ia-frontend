@@ -1,0 +1,171 @@
+.job-confirmation-modal {
+  padding: 0;
+  max-width: 500px;
+  border-radius: 12px;
+  overflow: hidden;
+
+  .modal-header {
+    background: linear-gradient(135deg, #4CAF50, #45a049);
+    color: white;
+    padding: 30px 20px;
+    text-align: center;
+
+    .success-icon {
+      margin-bottom: 16px;
+      
+      mat-icon {
+        font-size: 48px;
+        width: 48px;
+        height: 48px;
+        opacity: 0.9;
+      }
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 24px;
+      font-weight: 500;
+    }
+  }
+
+  .modal-content {
+    padding: 24px;
+
+    .job-details {
+      background: #f8f9fa;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 20px;
+
+      .detail-item {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 8px;
+        
+        &:last-child {
+          margin-bottom: 0;
+        }
+
+        .label {
+          font-weight: 600;
+          color: #555;
+          flex: 1;
+        }
+
+        .value {
+          color: #333;
+          font-weight: 500;
+          flex: 1;
+          text-align: right;
+          word-break: break-word;
+        }
+      }
+    }
+
+    .progress-section {
+      margin-bottom: 20px;
+
+      .progress-info {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 12px;
+        color: #666;
+
+        mat-icon {
+          font-size: 20px;
+          width: 20px;
+          height: 20px;
+        }
+
+        span {
+          font-size: 14px;
+        }
+      }
+
+      mat-progress-bar {
+        height: 6px;
+        border-radius: 3px;
+      }
+    }
+
+    .info-box {
+      background: #e3f2fd;
+      border: 1px solid #bbdefb;
+      border-radius: 8px;
+      padding: 16px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+
+      mat-icon {
+        color: #1976d2;
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+        margin-top: 2px;
+      }
+
+      p {
+        margin: 0;
+        color: #1565c0;
+        font-size: 14px;
+        line-height: 1.4;
+      }
+    }
+  }
+
+  .modal-actions {
+    padding: 16px 24px;
+    background: #fafafa;
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+
+    button {
+      min-width: 140px;
+      height: 40px;
+      border-radius: 20px;
+      font-weight: 500;
+
+      &[color="basic"] {
+        color: #666;
+      }
+
+      mat-icon {
+        margin-right: 8px;
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+      }
+    }
+  }
+}
+
+// Responsive design
+@media (max-width: 480px) {
+  .job-confirmation-modal {
+    .modal-content {
+      padding: 16px;
+      
+      .job-details {
+        .detail-item {
+          flex-direction: column;
+          gap: 4px;
+          
+          .value {
+            text-align: left;
+          }
+        }
+      }
+    }
+
+    .modal-actions {
+      flex-direction: column;
+      
+      button {
+        width: 100%;
+      }
+    }
+  }
+} 

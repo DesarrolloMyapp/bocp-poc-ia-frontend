@@ -1,0 +1,145 @@
+<div class="job-status-container">
+  <div class="header">
+    <h2>Estado de Procesamiento de Imágenes</h2>
+    <button mat-raised-button color="primary" (click)="checkJobsStatus()" [disabled]="loading">
+      <mat-icon>refresh</mat-icon>
+      Actualizar Todo
+    </button>
+  </div>
+
+  <div class="jobs-grid" *ngIf="jobs.length > 0">
+    <mat-card *ngFor="let job of jobs" class="job-card">
+      <mat-card-header>
+        <mat-card-title>{{ job.product_name || 'Procesando...' }}</mat-card-title>
+        <mat-card-subtitle>GTIN: {{ job.gtin || 'N/A' }}</mat-card-subtitle>
+      </mat-card-header>
+      
+      <mat-card-content>
+        <div class="job-info">
+          <div class="status-section">
+            <mat-chip-listbox>
+              <mat-chip [color]="getStatusChipColor(job.status)" selected>
+                {{ job.status }}
+              </mat-chip>
+            </mat-chip-listbox>
+            
+            <div class="progress-info" *ngIf="job.progress">
+              <mat-progress-bar 
+                mode="determinate" 
+                [value]="job.progress.progress_percentage || 0">
+              </mat-progress-bar>
+              <p>{{ job.progress.processed_images || 0 }} / {{ job.progress.total_images || 0 }} imágenes procesadas</p>
+              <p class="progress-text">{{ job.progress.progress_percentage || 0 }}% completado</p>
+            </div>
+          </div>
+
+          <div class="job-details" *ngIf="job.status !== 'LOADING'">
+            <div class="detail-row">
+              <strong>Job ID:</strong> 
+              <span class="job-id">{{ job.job_id }}</span>
+            </div>
+            
+            <div class="detail-row" *ngIf="job.timing">
+              <strong>Creado:</strong> 
+              <span>{{ job.timing.created_at | date:'short' }}</span>
+            </div>
+            
+            <div class="detail-row" *ngIf="job.timing && job.timing.updated_at">
+              <strong>Actualizado:</strong> 
+              <span>{{ job.timing.updated_at | date:'short' }}</span>
+            </div>
+            
+            <div class="detail-row" *ngIf="job.timing && job.timing.estimated_time_remaining">
+              <strong>Tiempo estimado:</strong> 
+              <span>{{ job.timing.estimated_time_remaining }}</span>
+            </div>
+            
+            <div class="detail-row" *ngIf="job.processed_files">
+              <strong>Archivos procesados:</strong> 
+              <span>{{ job.processed_files.length }}</span>
+            </div>
+            
+            <div class="detail-row" *ngIf="job.status_description">
+              <strong>Descripción:</strong> 
+              <span>{{ job.status_description }}</span>
+            </div>
+          </div>
+
+          <!-- Mostrar archivos procesados si están disponibles -->
+          <div class="processed-files" *ngIf="job.processed_files && job.processed_files.length > 0">
+            <h4>Archivos Procesados:</h4>
+            <div class="files-list">
+              <div class="file-item" *ngFor="let file of job.processed_files">
+                <mat-icon>image</mat-icon>
+                <span class="filename">{{ file.output_filename }}</span>
+                <button mat-icon-button color="primary" (click)="downloadSingleFile(file.s3_url, file.output_filename)">
+                  <mat-icon>download</mat-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Mostrar errores si los hay -->
+          <div class="error-section" *ngIf="job.errors && job.errors.length > 0">
+            <h4>Errores:</h4>
+            <div class="error-list">
+              <div class="error-item" *ngFor="let error of job.errors">
+                <mat-icon color="warn">error</mat-icon>
+                <span>{{ error }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+
+      <mat-card-actions>
+        <button 
+          mat-button 
+          color="primary" 
+          (click)="refreshJobStatus(job)"
+          [disabled]="job.status === 'LOADING'">
+          <mat-icon>refresh</mat-icon>
+          Actualizar
+        </button>
+        
+        <button 
+          mat-raised-button 
+          color="accent" 
+          (click)="downloadAllFiles(job)"
+          [disabled]="job.status !== 'COMPLETED' || job.downloading || !job.processed_files || job.processed_files.length === 0"
+          *ngIf="job.status === 'COMPLETED' && job.processed_files && job.processed_files.length > 0">
+          <mat-icon>download</mat-icon>
+          {{ job.downloading ? 'Descargando...' : 'Descargar Todos' }}
+        </button>
+        
+        <button 
+          mat-button 
+          color="warn" 
+          (click)="removeJob(job.job_id)"
+          [disabled]="job.status === 'PROCESSING'">
+          <mat-icon>delete</mat-icon>
+          Eliminar
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+
+  <!-- Estado vacío -->
+  <div class="empty-state" *ngIf="jobs.length === 0">
+    <div class="empty-icon">
+      <mat-icon>work_off</mat-icon>
+    </div>
+    <h3>No hay trabajos de procesamiento</h3>
+    <p>Los trabajos de transformación de imágenes aparecerán aquí cuando proceses productos.</p>
+    <button mat-raised-button color="primary" routerLink="/dashboards/dashboard1">
+      <mat-icon>add</mat-icon>
+      Procesar Productos
+    </button>
+  </div>
+
+  <!-- Indicador de carga -->
+  <div class="loading-overlay" *ngIf="loading">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p>Consultando estado de trabajos...</p>
+  </div>
+</div> 

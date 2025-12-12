@@ -1,0 +1,257 @@
+<div class="container-fluid py-4">
+    <h2 class="mb-4 text-center">
+        {{ isEditMode ? 'Editar Canal' : 'Crear Nuevo Canal' }}
+    </h2>
+    
+    <div class="col-md-12 mx-auto">
+        <div class="card shadow-sm p-4">
+            <form #channelForm="ngForm" (ngSubmit)="onSave()">
+                
+                <!-- Información Básica -->
+                <div class="mb-4">
+                    <h5 class="text-primary mb-3">Información Básica</h5>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <mat-form-field appearance="outline" class="w-100">
+                                <mat-label>Proveedor</mat-label>
+                                <input 
+                                    matInput 
+                                    type="text" 
+                                    [(ngModel)]="channel.provider" 
+                                    name="provider"
+                                    required 
+                                    placeholder="Ingrese el nombre del proveedor"
+                                />
+                            </mat-form-field>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <mat-form-field appearance="outline" class="w-100">
+                                <mat-label>GLN</mat-label>
+                                <input 
+                                    matInput 
+                                    type="number" 
+                                    [(ngModel)]="channel.gln" 
+                                    name="gln"
+                                    placeholder="Ingrese el GLN"
+                                />
+                            </mat-form-field>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Configuración de Imagen -->
+                <div class="mb-4">
+                    <h5 class="text-primary mb-3">Configuración de Imagen</h5>
+                    
+                    <!-- Preview -->
+                    <div class="d-flex align-items-start justify-content-center flex-wrap gap-4 mb-3">
+                        <div class="dimension-preview" [ngStyle]="getPreviewStyle(channel)">
+                            <span class="dimension-label-inside">
+                                {{ channel.width || 0 }} x {{ channel.height || 0 }} {{ channel.extension || '' }}
+                            </span>
+                        </div>
+
+                        <div class="col-md-8">
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <mat-form-field appearance="outline" class="w-100">
+                                        <mat-label>Width (Ancho)</mat-label>
+                                        <input 
+                                            matInput 
+                                            type="number" 
+                                            [(ngModel)]="channel.width" 
+                                            name="width"
+                                            required
+                                            min="1"
+                                        />
+                                        <span matSuffix>px</span>
+                                    </mat-form-field>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <mat-form-field appearance="outline" class="w-100">
+                                        <mat-label>Height (Alto)</mat-label>
+                                        <input 
+                                            matInput 
+                                            type="number" 
+                                            [(ngModel)]="channel.height" 
+                                            name="height"
+                                            required
+                                            min="1"
+                                        />
+                                        <span matSuffix>px</span>
+                                    </mat-form-field>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <mat-form-field appearance="outline" class="w-100">
+                                        <mat-label>Extensión</mat-label>
+                                        <input 
+                                            matInput 
+                                            type="text" 
+                                            [(ngModel)]="channel.extension" 
+                                            name="extension"
+                                            required
+                                            placeholder="ej: jpg, png, webp"
+                                        />
+                                    </mat-form-field>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <mat-form-field appearance="outline" class="w-100">
+                                        <mat-label>Densidad (DPI)</mat-label>
+                                        <input 
+                                            matInput 
+                                            type="number" 
+                                            [(ngModel)]="channel.dpi" 
+                                            name="dpi"
+                                            required
+                                            min="1"
+                                        />
+                                    </mat-form-field>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <mat-form-field appearance="outline" class="w-100">
+                                        <mat-label>Tamaño Máximo</mat-label>
+                                        <input 
+                                            matInput 
+                                            type="number" 
+                                            [(ngModel)]="channel.max_size_kb" 
+                                            name="max_size_kb"
+                                            placeholder="ej: 500, 1000"
+                                            min="0"
+                                        />
+                                        <span matSuffix>KB</span>
+                                    </mat-form-field>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Configuración de Adaptación -->
+                <div class="mb-4">
+                    <h5 class="text-primary mb-3">Configuración de Adaptación</h5>
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <mat-form-field appearance="outline" class="w-100">
+                                <mat-label>Tipo de Adaptación</mat-label>
+                                <select 
+                                    matNativeControl 
+                                    [(ngModel)]="channel.adaptation_type" 
+                                    name="adaptation_type"
+                                    required
+                                >
+                                    <option value="Redimensionar">Redimensionar</option>
+                                </select>
+                            </mat-form-field>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Configuración de Renombrado -->
+                <div class="mb-4">
+                    <h5 class="text-primary mb-3">Configuración de Renombrado</h5>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <mat-form-field appearance="outline" class="w-100">
+                                <mat-label>Tipo de Renombrado</mat-label>
+                                <select 
+                                    matNativeControl 
+                                    [(ngModel)]="channel.renaming_type" 
+                                    name="renaming_type"
+                                    required
+                                >
+                                    <option value="Estándar">Estándar</option>
+                                </select>
+                            </mat-form-field>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <mat-form-field appearance="outline" class="w-100">
+                                <mat-label>Base del Renombrado</mat-label>
+                                <input 
+                                    matInput 
+                                    type="text" 
+                                    [(ngModel)]="channel.rename_base" 
+                                    name="rename_base"
+                                    placeholder="ej: producto_, imagen_"
+                                    [required]="channel.renaming_type === 'custom'"
+                                    disabled = True
+                                />
+                            </mat-form-field>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <mat-form-field appearance="outline" class="w-100">
+                                <mat-label>Separador</mat-label>
+                                <input 
+                                    matInput 
+                                    type="text" 
+                                    [(ngModel)]="channel.rename_separator" 
+                                    name="rename_separator"
+                                    placeholder="ej: _, -, ."
+                                />
+                            </mat-form-field>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <mat-form-field appearance="outline" class="w-100">
+                                <mat-label>Índice de Inicio</mat-label>
+                                <input 
+                                    matInput 
+                                    type="number" 
+                                    [(ngModel)]="channel.rename_start_index" 
+                                    name="rename_start_index"
+                                    min="0"
+                                />
+                            </mat-form-field>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Configuración de Estructura -->
+                <div class="mb-4">
+                    <h5 class="text-primary mb-3">Configuración de Estructura</h5>
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <mat-form-field appearance="outline" class="w-100">
+                                <mat-label>Estructura de Carpetas</mat-label>
+                                <textarea 
+                                    matInput 
+                                    [(ngModel)]="channel.folder_structure" 
+                                    name="folder_structure"
+                                    placeholder="ej: /productos/{{ '{' }}categoria{{ '}' }}/{{ '{' }}subcategoria{{ '}' }}/"
+                                    rows="3"
+                                    disabled = True
+                                ></textarea>
+                                <mat-hint>Use {{ '{' }}variables{{ '}' }} para crear estructura dinámica</mat-hint>
+                            </mat-form-field>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action buttons -->
+                <div class="d-flex justify-content-end gap-2 mt-4" style="margin-right: 45px;">
+                    <button 
+                        type="button" 
+                        mat-raised-button 
+                        color="basic" 
+                        (click)="onCancel()"
+                        [disabled]="isLoading"
+                    >
+                        Cancelar
+                    </button>
+                    <button 
+                        type="submit" 
+                        mat-raised-button 
+                        color="primary" 
+                        [disabled]="!channelForm.valid || isLoading"
+                    >
+                        <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2"></span>
+                        {{ isEditMode ? 'Actualizar' : 'Crear' }} Canal
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

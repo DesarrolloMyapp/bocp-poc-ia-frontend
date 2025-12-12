@@ -1,0 +1,79 @@
+<div class="chat-widget" [class.open]="isOpen" [class.full-screen]="isFullScreen">
+  <div class="chat-header" (click)="toggleChat()">
+    <div class="d-flex align-items-center">
+      <i-tabler name="message-circle" class="icon-24 m-r-8"></i-tabler>
+      <span class="f-w-600">Asistente Virtual</span>
+    </div>
+    <i-tabler *ngIf="!isFullScreen" [name]="isOpen ? 'chevron-down' : 'chevron-up'" class="icon-20"></i-tabler>
+  </div>
+
+  <div class="chat-body" *ngIf="isOpen">
+    <div class="messages-list">
+      <div class="message-item" *ngFor="let msg of messages" [ngClass]="{'user-message': msg.sender === 'user', 'bot-message': msg.sender === 'bot'}">
+        
+        <!-- Text Content -->
+        <div class="message-content" *ngIf="msg.text">
+          {{ msg.text }}
+        </div>
+
+        <!-- Attachment Content -->
+        <div class="message-attachment" *ngIf="msg.attachment">
+          
+          <!-- Image Preview -->
+          <div *ngIf="msg.attachment.type === 'image'" class="image-attachment">
+            <img [src]="msg.attachment.url" [alt]="msg.attachment.name">
+          </div>
+
+          <!-- File Preview (PDF/Excel) -->
+          <div *ngIf="msg.attachment.type !== 'image'" class="file-attachment" [ngClass]="msg.attachment.type">
+            <div class="file-icon">
+              <i-tabler *ngIf="msg.attachment.type === 'pdf'" name="file-type-pdf" class="icon-24"></i-tabler>
+              <i-tabler *ngIf="msg.attachment.type === 'excel'" name="file-spreadsheet" class="icon-24"></i-tabler>
+            </div>
+            <div class="file-info">
+              <span class="file-name">{{ msg.attachment.name }}</span>
+              <span class="file-type">{{ msg.attachment.type | uppercase }}</span>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="message-time">
+          {{ msg.time | date:'shortTime' }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="chat-footer" *ngIf="isOpen">
+    
+    <!-- Hidden File Input -->
+    <input type="file" #fileInput hidden (change)="onFileSelected($event)" [accept]="getAcceptTypes()">
+    
+    <!-- Attachment Menu -->
+    <div class="attachment-menu" [class.show]="showAttachments">
+      <button mat-mini-fab class="attach-btn pdf" (click)="handleFileUpload('pdf')" matTooltip="Subir PDF">
+        <i-tabler name="file-type-pdf" class="icon-20"></i-tabler>
+      </button>
+      <button mat-mini-fab class="attach-btn excel" (click)="handleFileUpload('excel')" matTooltip="Subir Excel">
+        <i-tabler name="file-spreadsheet" class="icon-20"></i-tabler>
+      </button>
+      <button mat-mini-fab class="attach-btn image" (click)="handleFileUpload('image')" matTooltip="Subir Imagen">
+        <i-tabler name="photo" class="icon-20"></i-tabler>
+      </button>
+    </div>
+
+    <div class="d-flex align-items-center w-100 gap-2">
+      <button mat-icon-button (click)="toggleAttachments()" [class.active]="showAttachments" class="toggle-attach-btn">
+        <i-tabler [name]="showAttachments ? 'x' : 'paperclip'" class="icon-20"></i-tabler>
+      </button>
+      
+      <mat-form-field appearance="outline" class="w-100 no-bottom-space">
+        <input matInput placeholder="Escribe un mensaje..." [(ngModel)]="newMessage" (keyup.enter)="sendMessage()">
+        <button mat-icon-button matSuffix (click)="sendMessage()" color="primary">
+          <i-tabler name="send" class="icon-20"></i-tabler>
+        </button>
+      </mat-form-field>
+    </div>
+  </div>
+</div>

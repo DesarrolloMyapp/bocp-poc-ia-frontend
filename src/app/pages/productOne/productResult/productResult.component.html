@@ -1,0 +1,25 @@
+<h2 mat-dialog-title>Procesamiento iniciado con éxito</h2>
+
+<mat-dialog-content class="text-center">
+  <div class="success-message">
+    <div class="success-icon">✅</div>
+    <h3>{{ data.message }}</h3>
+    <p><strong>Job ID:</strong> {{ data.job_id }}</p>
+    <p><strong>Producto:</strong> {{ data.product_name }}</p>
+    <p><strong>GTIN:</strong> {{ data.gtin }}</p>
+    <p><strong>Total de imágenes:</strong> {{ data.total_images }}</p>
+    <p><strong>Tiempo estimado:</strong> {{ data.estimated_completion_time }}</p>
+  </div>
+  
+  <div class="info-message">
+    <p>El procesamiento se ha iniciado correctamente. Puedes ver el estado de todos tus trabajos en la sección de Jobs.</p>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="center" class="d-flex flex-column gap-2">
+  <button mat-raised-button color="primary" (click)="goToJobs()">
+    Ver estado de Jobs
+  </button>
+
+  <button mat-button mat-dialog-close>Cerrar</button>
+</mat-dialog-actions>

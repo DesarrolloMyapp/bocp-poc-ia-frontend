@@ -1,0 +1,89 @@
+<div class="row">
+  <div class="col-lg-8">
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title class="m-b-0"> Formulario inicial </mat-card-title>
+      </mat-card-header>
+      <mat-card-content class="b-t-1">
+        <div class="row justify-content-end m-t-20">
+          <div class="col-sm-12">
+            <button mat-flat-button color="primary" (click)="logOut()"> Cerrar sesion </button>
+          </div>
+        </div>
+
+        <form>
+          <div class="row">
+            <div class="col-sm-12 d-flex align-items-center m-t-24">
+              <mat-label class="mat-subtitle-2 f-w-600 d-block m-b-16">
+                Nombre
+              </mat-label>
+            </div>
+            <div class="col-sm-12">
+              <mat-form-field appearance="outline" class="w-100">
+                <input matInput placeholder="John Deo" />
+                <mat-icon matPrefix class="op-5">
+                  <i-tabler name="user" class="icon-20 d-flex"></i-tabler>
+                </mat-icon>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-sm-12 d-flex align-items-center m-t-10">
+              <mat-label class="mat-subtitle-2 f-w-600 d-block m-b-16">
+                Edad
+              </mat-label>
+            </div>
+            <div class="col-sm-12">
+              <mat-form-field appearance="outline" class="w-100">
+                <input matInput placeholder="Edad" />
+                <mat-icon matPrefix class="op-5">
+                  <i-tabler name="cake" class="icon-20 d-flex"></i-tabler>
+                </mat-icon>
+              </mat-form-field>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-sm-12 d-flex align-items-center m-t-10">
+              <mat-label class="mat-subtitle-2 f-w-600 d-block m-b-16">
+                Genero
+              </mat-label>
+            </div>
+            <div class="col-sm-12">
+              <mat-radio-group aria-label="Select an option">
+                <mat-radio-button value="1" color="primary"> Masculino </mat-radio-button>
+                <mat-radio-button value="2" color="primary"> Femenino </mat-radio-button>
+              </mat-radio-group>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-sm-12 d-flex align-items-center m-t-10">
+              <mat-label class="mat-subtitle-2 f-w-600 d-block m-b-16">
+                Fecha de nacimiento
+              </mat-label>
+            </div>
+            <div class="col-sm-12">
+              <mat-form-field appearance="outline" class="w-100">
+                <mat-label>Choose a date</mat-label>
+                <input matInput [matDatepicker]="picker" />
+                <mat-hint>MM/DD/YYYY</mat-hint>
+                <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+                <mat-datepicker #picker></mat-datepicker>
+              </mat-form-field>
+            </div>
+          </div>
+
+
+
+          <div class="row justify-content-end m-t-20">
+            <div class="col-sm-12">
+              <button mat-flat-button color="primary"> Guardar </button>
+            </div>
+          </div>
+        </form>
+      </mat-card-content>
+
+    </mat-card>
+  </div>
+</div>

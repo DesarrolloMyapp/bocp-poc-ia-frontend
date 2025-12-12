@@ -1,0 +1,122 @@
+.placeholder-img {
+    width: 200px;
+    height: 200px;
+    border: 1px dashed #ccc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: auto;
+}
+
+.nav-tabs .nav-link {
+    cursor: pointer;
+}
+
+.nav-tabs .nav-link.active {
+    background-color: #0d6efd;
+    color: white;
+}
+
+.dimension-preview {
+    background-color: #fafafa;
+    border: 2px dashed #ccc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 140px;
+    min-height: 140px;
+    padding: 1rem;
+    text-align: center;
+    border-radius: 6px;
+}
+
+.dimension-label-inside {
+    font-size: 0.8rem;
+    color: #555;
+    font-weight: 500;
+    text-align: center;
+}
+
+.dimension-text,
+.dimension-meta {
+    font-size: 0.85rem;
+    min-width: 240px;
+    max-width: 350px;
+    padding-left: 15px;
+
+    .label {
+        font-weight: 600;
+        font-size: 0.8rem;
+        color: #444;
+        margin-bottom: 2px;
+    }
+
+    .value {
+        color: #222;
+        font-size: 0.85rem;
+        margin-bottom: 0.75rem;
+    }
+}
+
+.thumbnail-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px; // separación vertical clara
+    align-items: center;
+    //max-height: 400px;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+.thumbnail-img {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    background-color: #fff;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); // sombra ligera
+    transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+}
+
+.thumbnail-img:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.selected-thumbnail {
+    border-color: #1976d2;
+    box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.3);
+}
+
+.main-preview-img {
+    max-height: 250px;
+    object-fit: contain;
+    border-radius: 12px;
+    background-color: #fff;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    padding: 0.5rem;
+}
+
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.7); // fondo blanco semitransparente
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1050; // encima de todo
+}
+
+.table-channel-select {
+  margin-top: 20px;
+}
+
+.btn-process-img {
+    margin-bottom: 25px !important;
+    text-align: center;
+}

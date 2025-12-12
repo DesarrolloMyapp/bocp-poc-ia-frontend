@@ -1,0 +1,65 @@
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Gestión de Canales</h2>
+        <button 
+            mat-raised-button 
+            color="primary" 
+            (click)="onCreateNew()"
+            [disabled]="isLoading"
+        >
+            <mat-icon>add</mat-icon>
+            Crear Nuevo Canal
+        </button>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <div *ngIf="isLoading" class="text-center p-4">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Cargando...</span>
+                </div>
+                <p class="mt-2">Cargando canales...</p>
+            </div>
+
+            <table mat-table [dataSource]="channels" class="mat-elevation-z0 w-100" *ngIf="!isLoading">
+                <ng-container *ngFor="let column of columns" [matColumnDef]="column.key">
+                    <th mat-header-cell *matHeaderCellDef class="table-header-cell"> {{ column.label }} </th>
+                    <td mat-cell *matCellDef="let row">
+                        <ng-container *ngIf="column.type === 'actions'; else normalCell">
+                            <button 
+                                *ngFor="let btn of column.buttons" 
+                                mat-icon-button
+                                [color]="btn.color || 'primary'" 
+                                matTooltip="{{ btn.label }}"
+                                class="action-button" 
+                                (click)="onAction(btn.action, row)"
+                            >
+                                <mat-icon>{{ btn.icon }}</mat-icon>
+                            </button>
+                        </ng-container>
+                        <ng-template #normalCell>
+                            {{ row[column.key] }}
+                        </ng-template>
+                    </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            </table>
+
+            <div *ngIf="!isLoading && channels.data.length === 0" class="text-center p-4">
+                <mat-icon class="text-muted mb-2" style="font-size: 48px;">inbox</mat-icon>
+                <h5>No hay canales disponibles</h5>
+                <p class="text-muted">Crea tu primer canal para comenzar</p>
+                <button 
+                    mat-raised-button 
+                    color="primary" 
+                    (click)="onCreateNew()"
+                >
+                    <mat-icon>add</mat-icon>
+                    Crear Canal
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

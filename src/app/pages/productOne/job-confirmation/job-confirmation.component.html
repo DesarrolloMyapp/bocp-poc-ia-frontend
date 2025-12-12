@@ -1,0 +1,60 @@
+<div class="job-confirmation-modal">
+  <div class="modal-header">
+    <div class="success-icon">
+      <mat-icon>check_circle</mat-icon>
+    </div>
+    <h2>¡Procesamiento Iniciado!</h2>
+  </div>
+
+  <div class="modal-content">
+    <div class="job-details">
+      <div class="detail-item">
+        <span class="label">Job ID:</span>
+        <span class="value">{{ data.job_id }}</span>
+      </div>
+      
+      <div class="detail-item">
+        <span class="label">Producto:</span>
+        <span class="value">{{ data.product_name }}</span>
+      </div>
+      
+      <div class="detail-item">
+        <span class="label">GTIN:</span>
+        <span class="value">{{ data.gtin }}</span>
+      </div>
+      
+      <div class="detail-item">
+        <span class="label">Total de imágenes:</span>
+        <span class="value">{{ data.total_images }}</span>
+      </div>
+      
+      <div class="detail-item">
+        <span class="label">Tiempo estimado:</span>
+        <span class="value">{{ data.estimated_completion_time }}</span>
+      </div>
+    </div>
+
+    <div class="progress-section">
+      <div class="progress-info">
+        <mat-icon>hourglass_top</mat-icon>
+        <span>{{ data.message }}</span>
+      </div>
+      <mat-progress-bar mode="indeterminate" color="primary"></mat-progress-bar>
+    </div>
+
+    <div class="info-box">
+      <mat-icon>info</mat-icon>
+      <p>El procesamiento se ejecuta en segundo plano. Puedes consultar el estado en tiempo real en la sección de Jobs.</p>
+    </div>
+  </div>
+
+  <div class="modal-actions">
+    <button mat-button (click)="closeModal()" color="basic">
+      Continuar trabajando
+    </button>
+    <button mat-raised-button (click)="goToJobs()" color="primary">
+      <mat-icon>visibility</mat-icon>
+      Ver estado de Jobs
+    </button>
+  </div>
+</div> 

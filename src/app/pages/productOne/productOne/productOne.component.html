@@ -1,0 +1,144 @@
+<div class="container-fluid py-4">
+    <h2 class="mb-4 text-center">Detalle del Producto</h2>
+    <p class="text-center"><strong>GTIN:</strong> {{ gtin }}</p>
+
+    <div class="row justify-content-center">
+        <div class="col-md-5 d-flex justify-content-center">
+            <div class="d-flex">
+                <div class="thumbnail-list me-3">
+                    <img *ngFor="let img of product.images" [src]="img.uniformresourceidentifier"
+                        (click)="selectedImage = img.uniformresourceidentifier"
+                        [class.selected-thumbnail]="selectedImage === img.uniformresourceidentifier"
+                        class="img-thumbnail thumbnail-img" alt="Miniatura" width="60" height="60" loading="lazy" />
+                </div>
+
+                <div class="text-center">
+                    <ng-container *ngIf="selectedImage; else noImage">
+                        <img [src]="selectedImage" alt="{{ product.producName }}" class="main-preview-img img-fluid"
+                            style="max-height: 250px; object-fit: contain;" />
+                    </ng-container>
+
+                    <ng-template #noImage>
+                        <div class="placeholder-img">
+                            <mat-icon>image_not_supported</mat-icon>
+                        </div>
+                    </ng-template>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card shadow-sm p-3">
+                <p class="text-muted small">Canales</p>
+
+                <mat-tab-group [(selectedIndex)]="selectedTab" class="mb-3">
+                    <mat-tab *ngFor="let channel of channels" [label]="channel.provider">
+                        <div class="d-flex align-items-start justify-content-center flex-wrap gap-4 mb-3 table-channel-select">
+                            <div class="dimension-preview" [ngStyle]="getPreviewStyle(channel, channel.gln)">
+                                <span class="dimension-label-inside">
+                                    {{ channel.width }} x {{ channel.height }} {{ channel.extension }}
+                                </span>
+                            </div>
+
+                            <div class="dimension-meta">
+                                <div class="row text-center text-md-start">
+                                    <div class="col">
+                                        <div class="label">Width (Ancho)</div>
+                                        <div class="value">{{ channel.width }}px</div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="label">Height (Largo)</div>
+                                        <div class="value">{{ channel.height }}px</div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="label">Extension</div>
+                                        <div class="value">{{ channel.extension }}</div>
+                                    </div>
+                                </div>
+
+                                <div class="row text-center text-md-start mt-3">
+                                    <div class="col">
+                                        <div class="label">Density</div>
+                                        <div class="value">{{ channel.dpi }}</div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="label">Max size</div>
+                                        <div class="value">{{ channel.max_size_kb }}</div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="label">GLN</div>
+                                        <div class="value">{{ channel.gln }}</div>
+                                    </div>
+                                </div>
+                                <div class="row text-center text-md-start mt-3">
+                                    <div class="col">
+                                        <div class="label">Tipo de adaptación</div>
+                                        <div class="value">{{ channel.adaptation_type }}</div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="label">Prefijo</div>
+                                        <div class="value">{{ channel.rename_base }}</div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="label">Separador</div>
+                                        <div class="value">{{ channel.rename_separator }}</div>
+                                    </div>
+
+                                </div>
+                                <div class="row text-center text-md-start mt-3">
+                                    <div class="col">
+                                        <div class="label">Inicio de secuencia</div>
+                                        <div class="value">{{ channel.rename_start_index }}</div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="label">Estructura de la carpeta</div>
+                                        <div class="value">{{ channel.folder_structure }}</div>
+                                    </div>
+
+                                </div>
+                                
+                            </div>
+                        </div>
+                    </mat-tab>
+                </mat-tab-group>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Disponibilidad de fotos</label>
+                    <div class="progress">
+                        <div class="progress-bar" role="progressbar" style="width: 100%;" aria-valuenow="100"
+                            aria-valuemin="0" aria-valuemax="100">
+                            {{ product.images.length }} / {{ product.images.length }} (100%)
+                        </div>
+                    </div>
+                </div>
+
+                <p class="text-muted small">
+                    El renombrado de archivos utilizará por default el GTIN. Si requiere personalización, cargue un XLS
+                    con GTIN Canal.
+                </p>
+
+                <button mat-raised-button color="primary" class="w-100 btn-process-img" [disabled]="isGenerating || product.images.length === 0"
+                    (click)="processImg()">
+                    Iniciar procesamiento por lotes
+                </button>
+                <!--process image with no background color-->
+                <button mat-raised-button color="primary" class="w-100 btn-process-img" [disabled]="isGenerating || product.images.length === 0"
+                    (click)="processImgNoBackground()">
+                    Procesar imágenes sin fondo
+                </button>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4 text-center" >
+        <button mat-raised-button color="warn" (click)="goToReturn()">
+            Volver
+        </button>
+    </div>
+
+    <div *ngIf="isGenerating" class="loading-overlay">
+        <mat-progress-spinner mode="indeterminate" color="primary" diameter="60" strokeWidth="5">
+        </mat-progress-spinner>
+    </div>
+</div>

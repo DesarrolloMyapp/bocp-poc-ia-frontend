@@ -1,0 +1,140 @@
+.carousel-counter {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+}
+
+.carousel-counter .badge {
+  background: #ffffff;
+  border: 1px solid #ddd;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  font-size: 0.75rem;
+}
+
+.carousel-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.carousel-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+
+  background: white;
+  border-radius: 50%;
+  border: 1px solid #ddd;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  width: 40px;
+  height: 40px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+
+  &:hover {
+    background: #f0f0f0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+
+  &:active {
+    transform: translateY(-50%) scale(0.9); // mantiene el centrado vertical
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+}
+
+.carousel-btn.left {
+  left: 10px;
+}
+
+.carousel-btn.right {
+  right: 10px;
+}
+
+.carousel-btn:hover {
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.placeholder-img {
+  height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 1px solid #eee;
+  background: #f8f9fa;
+  color: #ccc;
+  font-size: 2rem;
+}
+
+.product-card {
+  padding: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-radius: 0.5rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  }
+}
+
+.col-12 {
+  padding-bottom: 15px;
+}
+
+.custom-orange-button {
+  border: 1px solid #F15A29;
+  color: #F15A29;
+  background-color: transparent;
+  padding: 6px 16px;
+  font-weight: bold;
+  text-transform: none;
+  border-radius: 6px;
+  transition: background-color 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  &:hover {
+    background-color: rgba(241, 90, 41, 0.08);
+  }
+
+  .arrow-icon {
+    font-size: 1.1em;
+  }
+}
+
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1050;
+}
+
+.selected-image {
+  border: 2px solid #3f51b5;
+  border-radius: 6px;
+  box-shadow: 0 0 6px rgba(63, 81, 181, 0.5);
+}
+
+.no-image-placeholder {
+  height: 180px;
+  border: 1px dashed #ccc;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  text-align: center;
+  color: #888;
+}

@@ -1,0 +1,51 @@
+html .topbar {
+  background-color: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  position: sticky;
+  top: 0;
+  z-index: 9;
+  height: $header-height;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  border-bottom: 1px solid rgba(0,0,0,0.03);
+}
+
+.topbar-dd {
+  min-width: 360px !important;
+}
+
+.apps-dd {
+  min-width: 830px !important;
+  overflow: unset !important;
+
+  .mat-mdc-menu-content {
+    padding: 0;
+  }
+}
+
+.upgrade-bg {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  height: 100%;
+}
+
+.object-cover {
+  object-fit: cover;
+}
+
+@media (min-width: 768px) {
+  .search-dialog {
+    width: 600px;
+  }
+}
+
+// perfect scroll
+.ps__rail-y {
+  right: 0;
+  left: unset !important;
+}
+
+.profile-dd {
+  margin-top: -5px;
+  margin-left: -5px;
+}

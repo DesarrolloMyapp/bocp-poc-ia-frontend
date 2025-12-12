@@ -1,0 +1,144 @@
+<div class="container-fluid py-4">
+    <h2 class="mb-4 text-center">Detalle de los Productos Seleccionados</h2>
+    <!-- <p class="text-center"><strong>GTIN:</strong> {{ gtin }}</p> -->
+
+    <div class="row mb-5 pb-4">
+
+        <div class="col-md-4">
+            <div class="card product-card d-flex flex-row align-items-center p-3 shadow-sm mb-4"
+                *ngFor="let product of products">
+                <img *ngIf="product.images?.length" [src]="product.images[0]?.uniformresourceidentifier"
+                    alt="Primera imagen" style="width: 120px; height: 120px; object-fit: contain;" class="me-3" />
+
+                <div class="flex-grow-1">
+                    <p class="mb-2">GTIN: {{ product.gtin }}</p>
+                    <h5 class="mb-1">{{ product.producName }}</h5>
+                    <p class="mb-2">Disponibilidad de imágenes: {{ product.images.length }} / {{ product.images.length
+                        }}</p>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card shadow-sm p-3">
+                <p class="text-muted small">Canales</p>
+
+                <mat-tab-group [(selectedIndex)]="selectedTab" class="mb-3">
+                    <mat-tab *ngFor="let channel of channels" [label]="channel.provider">
+                        <div class="d-flex align-items-start justify-content-center flex-wrap gap-4 mb-3">
+                            <div class="dimension-preview" [ngStyle]="getPreviewStyle(channel)">
+                                <span class="dimension-label-inside">
+                                    {{ channel.width }} x {{ channel.height }} {{ channel.extension }}
+                                </span>
+                            </div>
+
+                            <div class="dimension-meta">
+                                <div class="row text-center text-md-start">
+                                    <div class="col">
+                                        <div class="label">Width (Ancho)</div>
+                                        <div class="value">{{ channel.width }}px</div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="label">Height (Largo)</div>
+                                        <div class="value">{{ channel.height }}px</div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="label">Extension</div>
+                                        <div class="value">{{ channel.extension }}</div>
+                                    </div>
+                                </div>
+
+                                <div class="row text-center text-md-start mt-3">
+                                    <div class="col">
+                                        <div class="label">Density</div>
+                                        <div class="value">{{ channel.dpi }}</div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="label">Max size</div>
+                                        <div class="value">{{ channel.max_size }}</div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="label">GLN</div>
+                                        <div class="value">{{ channel.gln }}</div>
+                                    </div>
+                                </div>
+                                <div class="row text-center text-md-start mt-3">
+                                    <div class="col">
+                                        <div class="label">Tipo de adaptación</div>
+                                        <div class="value">{{ channel.adaptation_type }}</div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="label">Prefijo</div>
+                                        <div class="value">{{ channel.rename_base }}</div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="label">Separador</div>
+                                        <div class="value">{{ channel.rename_separator }}</div>
+                                    </div>
+
+                                </div>
+                                <div class="row text-center text-md-start mt-3">
+                                    <div class="col">
+                                        <div class="label">Inicio de secuencia</div>
+                                        <div class="value">{{ channel.rename_start_index }}</div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="label">Estructura de la carpeta</div>
+                                        <div class="value">{{ channel.folder_structure }}</div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </mat-tab>
+                </mat-tab-group>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Disponibilidad de productos</label>
+                    <div class="progress">
+                        <div class="progress-bar" role="progressbar" style="width: 100%;" aria-valuenow="100"
+                            aria-valuemin="0" aria-valuemax="100">
+                            {{ products.length }} / {{ products.length }} (100%)
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex align-items-center gap-2 my-3">
+                    <label class="form-label m-0">Imágenes por GTIN</label>
+
+                    <mat-form-field appearance="outline" class="tiny-input">
+                        <input matInput type="number" [(ngModel)]="imagesPerGtin" min="1" max="10">
+                    </mat-form-field>
+                </div>
+
+                <p class="text-muted small">
+                    El renombrado de archivos utilizará por default el GTIN. Si requiere personalización, cargue un XLS
+                    con GTIN Canal.
+                </p>
+
+                <button mat-raised-button color="primary" class="w-100 btn-process-img" [disabled]="isGenerating"
+                    (click)="sendToProcess()">
+                    Iniciar procesamiento por lotes
+                </button>
+
+                <button mat-raised-button color="primary" class="w-100 btn-process-img" [disabled]="isGenerating"
+                    (click)="sendToProcessNoBackground()">
+                    Procesar imágenes sin fondo
+                </button>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-center ">
+        <button mat-raised-button color="warn" (click)="goToReturn()">
+            Volver
+        </button>
+    </div>
+
+    <div *ngIf="isGenerating" class="loading-overlay">
+        <mat-progress-spinner mode="indeterminate" color="primary" diameter="60" strokeWidth="5">
+        </mat-progress-spinner>
+    </div>
+</div>

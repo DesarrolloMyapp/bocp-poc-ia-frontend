@@ -1,0 +1,43 @@
+.container {
+  max-width: 1200px;
+  padding-left: 24px;
+  padding-right: 24px;
+  margin: 0 auto;
+  &.full-width {
+    display: flex;
+    align-items: center;
+    width: 100%;
+  }
+}
+
+.bg-extra-light {
+  background-color: $hoverBgColor;
+}
+
+.lh-base {
+  line-height: 1.75;
+}
+
+.border-white {
+  border: 1px solid $white !important;
+}
+
+.border-accent {
+  border: 1px solid $accent !important;
+}
+
+.border-primary {
+  border: 1px solid $primary !important;
+}
+
+.hstack {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+}
+
+@media (max-width: 767px) {
+  .hstack {
+    flex-direction: column;
+  }
+}

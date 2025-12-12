@@ -1,0 +1,73 @@
+.dimension-preview {
+    background-color: #fafafa;
+    border: 2px dashed #ccc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 140px;
+    min-height: 140px;
+    padding: 1rem;
+    text-align: center;
+    border-radius: 6px;
+}
+
+.dimension-label-inside {
+    font-size: 0.8rem;
+    color: #555;
+    font-weight: 500;
+    text-align: center;
+}
+
+.dimension-text,
+.dimension-meta {
+    font-size: 0.85rem;
+    min-width: 240px;
+    max-width: 350px;
+    padding-left: 15px;
+
+    .label {
+        font-weight: 600;
+        font-size: 0.8rem;
+        color: #444;
+        margin-bottom: 2px;
+    }
+
+    .value {
+        color: #222;
+        font-size: 0.85rem;
+        margin-bottom: 0.75rem;
+    }
+}
+
+.tiny-input {
+  width: 60px;
+  margin: 0;
+}
+
+::ng-deep .mat-form-field-wrapper {
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+::ng-deep .mat-form-field-infix {
+  padding: 4px 0 !important;
+  min-height: 30px;
+}
+
+.btn-process-img {
+    margin-bottom: 25px !important;
+    text-align: center;
+}
+
+.product-card {
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+  background-color: #fff;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+  }
+}
