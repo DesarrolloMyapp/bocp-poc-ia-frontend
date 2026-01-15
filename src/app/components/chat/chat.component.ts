@@ -39,6 +39,7 @@ export class ChatComponent implements OnInit {
   isOpen: boolean = false;
   showAttachments: boolean = false;
   currentUploadType: 'pdf' | 'excel' | 'image' | null = null;
+  pendingAttachment: any = null;
 
   ngOnInit() {
     if (this.isFullScreen) {
@@ -77,40 +78,26 @@ export class ChatComponent implements OnInit {
     const file = event.target.files[0];
     if (!file) return;
 
-    if (this.currentUploadType === 'image') {
-      const reader = new FileReader();
-      reader.onload = (e: any) => {
-        this.messages.push({
-          text: '',
-          sender: 'user',
-          time: new Date(),
-          attachment: {
-            type: 'image',
-            name: file.name,
-            url: e.target.result,
-            file: file
-          }
-        });
-        this.simulateBotResponse();
+    const attachmentType = this.currentUploadType || 'image';
+
+    const reader = new FileReader();
+    reader.onload = (e: any) => {
+      this.pendingAttachment = {
+        type: attachmentType,
+        name: file.name,
+        url: e.target.result,
+        file: file
       };
-      reader.readAsDataURL(file);
-    } else {
-      this.messages.push({
-        text: '',
-        sender: 'user',
-        time: new Date(),
-        attachment: {
-          type: this.currentUploadType!,
-          name: file.name,
-          file: file
-        }
-      });
-      this.simulateBotResponse();
-    }
+    };
+    reader.readAsDataURL(file);
 
     // Reset input
     event.target.value = '';
     this.currentUploadType = null;
+  }
+
+  removePendingAttachment() {
+    this.pendingAttachment = null;
   }
 
   simulateBotResponse() {
@@ -124,30 +111,60 @@ export class ChatComponent implements OnInit {
   }
 
   sendMessage() {
-    if (this.newMessage.trim()) {
+    if (this.newMessage.trim() || this.pendingAttachment) {
       const userMessage = this.newMessage;
+      const attachment = this.pendingAttachment; 
       
-      this.messages.push({
+      const message: Message = {
         text: userMessage,
         sender: 'user',
         time: new Date()
-      });
+      };
+
+      if (this.pendingAttachment) {
+        message.attachment = this.pendingAttachment;
+      }
+
+      this.messages.push(message);
       
       this.newMessage = '';
-      this.callBedrockAPI(userMessage);
+      this.pendingAttachment = null;
+      this.callBedrockAPI(userMessage, attachment);
     }
   }
 
-  callBedrockAPI(message: string) {
+  callBedrockAPI(message: string, attachment: any = null) {
     this.isProcessing = true;
     
     const apiUrl = `${environment.api}bedrock/prompt`;
-    const payload = {
-      prompt: message,
+    
+    const payload: any = {
+      prompt: message || '', // Asegurar que no sea null
       userId: environment.userId,
       agentId: environment.agentId,
-      agentAliasId: environment.agentAliasId
+      agentAliasId: environment.agentAliasId,
+      fileIds: []
     };
+
+    if (attachment) {
+      // Extraer solo la parte base64 (eliminar el prefijo data:xxx;base64,)
+      const base64Content = attachment.url.split(',')[1];
+      
+      payload.base64File = base64Content;
+      payload.fileName = attachment.name;
+      
+      // Mapear tipos MIME
+      let mediaType = 'application/octet-stream';
+      if (attachment.type === 'pdf') mediaType = 'application/pdf';
+      else if (attachment.type === 'excel') mediaType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'; // xlsx
+      else if (attachment.type === 'image') {
+        const extension = attachment.name.split('.').pop()?.toLowerCase();
+        if (extension === 'png') mediaType = 'image/png';
+        else if (extension === 'jpg' || extension === 'jpeg') mediaType = 'image/jpeg';
+      }
+      
+      payload.mediaType = mediaType;
+    }
 
     this.http.post<any>(apiUrl, payload).subscribe({
       next: (response) => {
