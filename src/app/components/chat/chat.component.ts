@@ -5,6 +5,7 @@ import { MaterialModule } from 'src/app/material.module';
 import { TablerIconsModule } from 'angular-tabler-icons';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { environment } from 'src/enviroments/environment';
+import { MarkdownPipe } from 'src/app/pipe/markdown.pipe';
 
 interface Message {
   text: string;
@@ -21,7 +22,7 @@ interface Message {
 @Component({
   selector: 'app-chat',
   standalone: true,
-  imports: [CommonModule, FormsModule, MaterialModule, TablerIconsModule, HttpClientModule],
+  imports: [CommonModule, FormsModule, MaterialModule, TablerIconsModule, HttpClientModule, MarkdownPipe],
   templateUrl: './chat.component.html',
   styleUrls: ['./chat.component.scss']
 })
@@ -40,11 +41,14 @@ export class ChatComponent implements OnInit {
   showAttachments: boolean = false;
   currentUploadType: 'pdf' | 'excel' | 'image' | null = null;
   pendingAttachment: any = null;
+  sessionId: string = '';
 
   ngOnInit() {
     if (this.isFullScreen) {
       this.isOpen = true;
     }
+    // Generar sessionId al iniciar el componente
+    this.sessionId = this.generateSessionId();
   }
 
   toggleChat() {
@@ -139,31 +143,39 @@ export class ChatComponent implements OnInit {
     const apiUrl = `${environment.api}bedrock/prompt`;
     
     const payload: any = {
-      prompt: message || '', // Asegurar que no sea null
-      userId: environment.userId,
       agentId: environment.agentId,
       agentAliasId: environment.agentAliasId,
-      fileIds: []
+      sessionId: this.sessionId,
+      enableTrace: false
     };
 
+    // Agregar inputText si hay mensaje
+    if (message && message.trim()) {
+      payload.inputText = message;
+    }
+
+    // Agregar attachments si hay archivo adjunto
     if (attachment) {
       // Extraer solo la parte base64 (eliminar el prefijo data:xxx;base64,)
       const base64Content = attachment.url.split(',')[1];
       
-      payload.base64File = base64Content;
-      payload.fileName = attachment.name;
-      
       // Mapear tipos MIME
-      let mediaType = 'application/octet-stream';
-      if (attachment.type === 'pdf') mediaType = 'application/pdf';
-      else if (attachment.type === 'excel') mediaType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'; // xlsx
+      let fileType = 'application/octet-stream';
+      if (attachment.type === 'pdf') fileType = 'application/pdf';
+      else if (attachment.type === 'excel') fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
       else if (attachment.type === 'image') {
         const extension = attachment.name.split('.').pop()?.toLowerCase();
-        if (extension === 'png') mediaType = 'image/png';
-        else if (extension === 'jpg' || extension === 'jpeg') mediaType = 'image/jpeg';
+        if (extension === 'png') fileType = 'image/png';
+        else if (extension === 'jpg' || extension === 'jpeg') fileType = 'image/jpeg';
       }
       
-      payload.mediaType = mediaType;
+      payload.attachments = [{
+        fileName: attachment.name,
+        fileType: fileType,
+        base64: base64Content
+      }];
+    } else {
+      payload.attachments = [];
     }
 
     this.http.post<any>(apiUrl, payload).subscribe({
@@ -201,6 +213,15 @@ export class ChatComponent implements OnInit {
           time: new Date()
         });
       }
+    });
+  }
+
+  generateSessionId(): string {
+    // Generar un UUID simple
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      const r = Math.random() * 16 | 0;
+      const v = c === 'x' ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
     });
   }
 }

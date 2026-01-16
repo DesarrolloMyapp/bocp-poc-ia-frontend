@@ -13,7 +13,7 @@
         
         <!-- Text Content -->
         <div class="message-content" *ngIf="msg.text">
-          {{ msg.text }}
+          <div [innerHTML]="msg.text | markdown"></div>
         </div>
 
         <!-- Attachment Content -->
