@@ -12,30 +12,28 @@
       <div class="message-item" *ngFor="let msg of messages" [ngClass]="{'user-message': msg.sender === 'user', 'bot-message': msg.sender === 'bot'}">
         
         <!-- Text Content -->
-        <div class="message-content" *ngIf="msg.text">
-          {{ msg.text }}
-        </div>
+        <div class="message-content" *ngIf="msg.text" [innerHTML]="formatMessage(msg.text)"></div>
 
         <!-- Attachment Content -->
-        <div class="message-attachment" *ngIf="msg.attachment">
-          
-          <!-- Image Preview -->
-          <div *ngIf="msg.attachment.type === 'image'" class="image-attachment">
-            <img [src]="msg.attachment.url" [alt]="msg.attachment.name">
-          </div>
+        <div class="message-attachments" *ngIf="msg.attachments && msg.attachments.length > 0">
+           <div class="attachment-item" *ngFor="let attachment of msg.attachments">
+              <!-- Image Preview -->
+              <div *ngIf="attachment.type === 'image'" class="image-attachment">
+                <img [src]="attachment.url" [alt]="attachment.name">
+              </div>
 
-          <!-- File Preview (PDF/Excel) -->
-          <div *ngIf="msg.attachment.type !== 'image'" class="file-attachment" [ngClass]="msg.attachment.type">
-            <div class="file-icon">
-              <i-tabler *ngIf="msg.attachment.type === 'pdf'" name="file-type-pdf" class="icon-24"></i-tabler>
-              <i-tabler *ngIf="msg.attachment.type === 'excel'" name="file-spreadsheet" class="icon-24"></i-tabler>
-            </div>
-            <div class="file-info">
-              <span class="file-name">{{ msg.attachment.name }}</span>
-              <span class="file-type">{{ msg.attachment.type | uppercase }}</span>
-            </div>
-          </div>
-
+              <!-- File Preview (PDF/Excel) -->
+              <div *ngIf="attachment.type !== 'image'" class="file-attachment" [ngClass]="attachment.type">
+                <div class="file-icon">
+                  <i-tabler *ngIf="attachment.type === 'pdf'" name="file-type-pdf" class="icon-24"></i-tabler>
+                  <i-tabler *ngIf="attachment.type === 'excel'" name="file-spreadsheet" class="icon-24"></i-tabler>
+                </div>
+                <div class="file-info">
+                  <span class="file-name">{{ attachment.name }}</span>
+                  <span class="file-type">{{ attachment.type | uppercase }}</span>
+                </div>
+              </div>
+           </div>
         </div>
 
         <div class="message-time">
@@ -57,7 +55,7 @@
   <div class="chat-footer" *ngIf="isOpen">
     
     <!-- Hidden File Input -->
-    <input type="file" #fileInput hidden (change)="onFileSelected($event)" [accept]="getAcceptTypes()">
+    <input type="file" #fileInput hidden (change)="onFileSelected($event)" [accept]="getAcceptTypes()" multiple>
     
     <!-- Attachment Menu -->
     <div class="attachment-menu" [class.show]="showAttachments">
@@ -73,17 +71,17 @@
     </div>
 
     <!-- Attachment Preview Pending -->
-    <div class="attachment-preview-pending" *ngIf="pendingAttachment">
-      <div class="preview-item">
+    <div class="attachment-preview-pending" *ngIf="pendingAttachments.length > 0">
+      <div class="preview-item" *ngFor="let attachment of pendingAttachments; let i = index">
         <div class="d-flex align-items-center gap-2">
             <span class="preview-icon">
-              <i-tabler *ngIf="pendingAttachment.type === 'pdf'" name="file-type-pdf" class="icon-24"></i-tabler>
-              <i-tabler *ngIf="pendingAttachment.type === 'excel'" name="file-spreadsheet" class="icon-24"></i-tabler>
-              <img *ngIf="pendingAttachment.type === 'image'" [src]="pendingAttachment.url" class="rounded" width="30" height="30">
+              <i-tabler *ngIf="attachment.type === 'pdf'" name="file-type-pdf" class="icon-24"></i-tabler>
+              <i-tabler *ngIf="attachment.type === 'excel'" name="file-spreadsheet" class="icon-24"></i-tabler>
+              <img *ngIf="attachment.type === 'image'" [src]="attachment.url" class="rounded" width="30" height="30">
             </span>
-            <span class="text-truncate" style="max-width: 150px; font-size: 12px;">{{ pendingAttachment.name }}</span>
+            <span class="text-truncate" style="max-width: 150px; font-size: 12px;">{{ attachment.name }}</span>
         </div>
-        <button mat-icon-button (click)="removePendingAttachment()" class="close-preview">
+        <button mat-icon-button (click)="removePendingAttachment(i)" class="close-preview">
           <i-tabler name="x" class="icon-16"></i-tabler>
         </button>
       </div>

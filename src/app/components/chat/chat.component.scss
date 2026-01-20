@@ -16,12 +16,16 @@ $error: #fc4b6c;
   display: flex;
   flex-direction: column;
 
+  &.open {
+    height: 500px;
+  }
+
   &.full-screen {
     position: relative;
     bottom: auto;
     right: auto;
     width: 100%;
-    height: calc(100vh - 140px); // Adjust based on header/padding
+    height: 90vh; // Occupy most of the screen
     box-shadow: none;
     border: 1px solid #e5eaef;
     
@@ -33,10 +37,6 @@ $error: #fc4b6c;
         background: $primary;
       }
     }
-  }
-
-  &.open {
-    height: 500px;
   }
 
   &:not(.open):not(.full-screen) {
