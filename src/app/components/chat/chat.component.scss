@@ -16,16 +16,12 @@ $error: #fc4b6c;
   display: flex;
   flex-direction: column;
 
-  &.open {
-    height: 500px;
-  }
-
   &.full-screen {
     position: relative;
     bottom: auto;
     right: auto;
     width: 100%;
-    height: calc(100vh - 120px) !important;
+    height: calc(100vh - 140px); // Adjust based on header/padding
     box-shadow: none;
     border: 1px solid #e5eaef;
     
@@ -37,6 +33,10 @@ $error: #fc4b6c;
         background: $primary;
       }
     }
+  }
+
+  &.open {
+    height: 500px;
   }
 
   &:not(.open):not(.full-screen) {
@@ -101,72 +101,67 @@ $error: #fc4b6c;
         text-align: right;
       }
 
-      .message-attachments {
+      .message-attachment {
         margin-top: 4px;
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
 
-        .attachment-item {
-          .image-attachment {
-            padding: 10px;
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            display: inline-block; // Ensure it wraps the content
-            
-            img {
-              max-width: 100%;
-              max-height: 200px;
-              border-radius: 4px; // Slightly smaller radius for inner image
-              display: block;
-            }
+        .image-attachment {
+          padding: 10px;
+          background: rgba(255, 255, 255, 0.9);
+          border-radius: 8px;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+          display: inline-block; // Ensure it wraps the content
+
+          img {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 4px; // Slightly smaller radius for inner image
+            display: block;
           }
+        }
 
-          .file-attachment {
+        .file-attachment {
+          display: flex;
+          align-items: center;
+          padding: 10px;
+          background: rgba(255, 255, 255, 0.9);
+          border-radius: 8px;
+          min-width: 200px;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+          
+          .file-icon {
+            width: 40px;
+            height: 40px;
             display: flex;
             align-items: center;
-            padding: 10px;
-            background: rgba(255, 255, 255, 0.9);
+            justify-content: center;
             border-radius: 8px;
-            min-width: 200px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            
-            .file-icon {
-              width: 40px;
-              height: 40px;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              border-radius: 8px;
-              margin-right: 12px;
-              color: white;
-            }
-
-            .file-info {
-              display: flex;
-              flex-direction: column;
-              overflow: hidden;
-
-              .file-name {
-                font-weight: 600;
-                font-size: 13px;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                color: #2a3547;
-              }
-
-              .file-type {
-                font-size: 10px;
-                color: #7c8fac;
-                font-weight: 500;
-              }
-            }
-
-            &.pdf .file-icon { background: #FF4081; }
-            &.excel .file-icon { background: #2E7D32; }
+            margin-right: 12px;
+            color: white;
           }
+
+          .file-info {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+
+            .file-name {
+              font-weight: 600;
+              font-size: 13px;
+              white-space: nowrap;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              color: #2a3547;
+            }
+
+            .file-type {
+              font-size: 10px;
+              color: #7c8fac;
+              font-weight: 500;
+            }
+          }
+
+          &.pdf .file-icon { background: #FF4081; }
+          &.excel .file-icon { background: #2E7D32; }
         }
       }
 
@@ -227,21 +222,13 @@ $error: #fc4b6c;
         margin-bottom: 8px;
         background: #f8f9fa;
         border-radius: 8px;
-        padding: 8px;
+        padding: 6px 10px;
         border: 1px solid #e0e0e0;
-        max-height: 150px;
-        overflow-y: auto;
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
 
         .preview-item {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 4px;
-            background: rgba(255, 255, 255, 0.5);
-            border-radius: 4px;
         }
         
         .close-preview {

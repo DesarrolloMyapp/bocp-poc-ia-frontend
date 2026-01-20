@@ -12,10 +12,9 @@ export const environment = {
   apicadenas: 'http://apisync.syncfonia.com/',
   api:"https://4tr7zmxsvd.execute-api.us-east-1.amazonaws.com/dev/bocppocia-",
   domainUrl: "http://localhost:9100/",
-  // apiregistry: 'https://6d6j5r4cdl.execute-api.us-east-1.amazonaws.com/',
   agentAliasId: 'UNRFTUXOKK',
-  userId: 'GS1ImagenesUser',
-  agentId: 'B96VRZQ2ZS'
+userId: 'GS1ImagenesUser',
+  agentId: 'NWSQC50RBV'
 }
 
 // export const environment = {
