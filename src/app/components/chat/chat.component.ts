@@ -6,16 +6,18 @@ import { TablerIconsModule } from 'angular-tabler-icons';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { environment } from 'src/enviroments/environment';
 
+interface Attachment {
+  type: 'image' | 'pdf' | 'excel';
+  name: string;
+  url?: string;
+  file?: File;
+}
+
 interface Message {
   text: string;
   sender: 'user' | 'bot';
   time: Date;
-  attachment?: {
-    type: 'image' | 'pdf' | 'excel';
-    name: string;
-    url?: string;
-    file?: File;
-  };
+  attachments?: Attachment[];
 }
 
 @Component({
@@ -26,7 +28,7 @@ interface Message {
   styleUrls: ['./chat.component.scss']
 })
 export class ChatComponent implements OnInit {
-  @Input() isFullScreen: boolean = false;
+  @Input() isFullScreen: boolean = true;
   @ViewChild('fileInput') fileInput!: ElementRef;
   
   private http = inject(HttpClient);
@@ -39,7 +41,7 @@ export class ChatComponent implements OnInit {
   isOpen: boolean = false;
   showAttachments: boolean = false;
   currentUploadType: 'pdf' | 'excel' | 'image' | null = null;
-  pendingAttachment: any = null;
+  pendingAttachments: Attachment[] = [];
 
   ngOnInit() {
     if (this.isFullScreen) {
@@ -75,29 +77,47 @@ export class ChatComponent implements OnInit {
   }
 
   onFileSelected(event: any) {
-    const file = event.target.files[0];
-    if (!file) return;
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
 
     const attachmentType = this.currentUploadType || 'image';
 
-    const reader = new FileReader();
-    reader.onload = (e: any) => {
-      this.pendingAttachment = {
-        type: attachmentType,
-        name: file.name,
-        url: e.target.result,
-        file: file
+    Array.from(files).forEach((file: any) => {
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        this.pendingAttachments.push({
+          type: attachmentType,
+          name: file.name,
+          url: e.target.result, // base64 data url
+          file: file
+        });
       };
-    };
-    reader.readAsDataURL(file);
+      reader.readAsDataURL(file);
+    });
 
     // Reset input
     event.target.value = '';
     this.currentUploadType = null;
   }
 
-  removePendingAttachment() {
-    this.pendingAttachment = null;
+  removePendingAttachment(index: number) {
+    this.pendingAttachments.splice(index, 1);
+  }
+
+  formatMessage(text: string): string {
+    if (!text) return '';
+    
+    // Convertir **texto** a <strong>texto</strong>
+    let formatted = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    
+    // Convertir saltos de línea a <br>
+    formatted = formatted.replace(/\n/g, '<br>');
+    
+    // Opcional: Mejorar visualización de listas
+    // Reemplazar "- " al inicio de línea (o después de <br>) con un bullet point visual
+    formatted = formatted.replace(/(^|<br>)- /g, '$1• ');
+
+    return formatted;
   }
 
   simulateBotResponse() {
@@ -111,9 +131,9 @@ export class ChatComponent implements OnInit {
   }
 
   sendMessage() {
-    if (this.newMessage.trim() || this.pendingAttachment) {
+    if (this.newMessage.trim() || this.pendingAttachments.length > 0) {
       const userMessage = this.newMessage;
-      const attachment = this.pendingAttachment; 
+      const attachments = [...this.pendingAttachments]; 
       
       const message: Message = {
         text: userMessage,
@@ -121,19 +141,19 @@ export class ChatComponent implements OnInit {
         time: new Date()
       };
 
-      if (this.pendingAttachment) {
-        message.attachment = this.pendingAttachment;
+      if (attachments.length > 0) {
+        message.attachments = attachments;
       }
 
       this.messages.push(message);
       
       this.newMessage = '';
-      this.pendingAttachment = null;
-      this.callBedrockAPI(userMessage, attachment);
+      this.pendingAttachments = [];
+      this.callBedrockAPI(userMessage, attachments);
     }
   }
 
-  callBedrockAPI(message: string, attachment: any = null) {
+  callBedrockAPI(message: string, attachments: Attachment[] = []) {
     this.isProcessing = true;
     
     const apiUrl = `${environment.api}bedrock/prompt`;
@@ -146,24 +166,26 @@ export class ChatComponent implements OnInit {
       fileIds: []
     };
 
-    if (attachment) {
-      // Extraer solo la parte base64 (eliminar el prefijo data:xxx;base64,)
-      const base64Content = attachment.url.split(',')[1];
-      
-      payload.base64File = base64Content;
-      payload.fileName = attachment.name;
-      
-      // Mapear tipos MIME
-      let mediaType = 'application/octet-stream';
-      if (attachment.type === 'pdf') mediaType = 'application/pdf';
-      else if (attachment.type === 'excel') mediaType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'; // xlsx
-      else if (attachment.type === 'image') {
-        const extension = attachment.name.split('.').pop()?.toLowerCase();
-        if (extension === 'png') mediaType = 'image/png';
-        else if (extension === 'jpg' || extension === 'jpeg') mediaType = 'image/jpeg';
-      }
-      
-      payload.mediaType = mediaType;
+    if (attachments && attachments.length > 0) {
+      payload.attachments = attachments.map(attachment => {
+          // Determine mime type
+          let mediaType = 'application/octet-stream';
+          if (attachment.type === 'pdf') mediaType = 'application/pdf';
+          else if (attachment.type === 'excel') mediaType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'; // xlsx
+          else if (attachment.type === 'image') {
+            const extension = attachment.name.split('.').pop()?.toLowerCase();
+            if (extension === 'png') mediaType = 'image/png';
+            else if (extension === 'jpg' || extension === 'jpeg') mediaType = 'image/jpeg';
+            else if (extension === 'webp') mediaType = 'image/webp';
+            else mediaType = 'image/jpeg'; // fallback
+          }
+          
+          return {
+            base64: attachment.url, // Backend expects full base64 string (including prefix is fine, handled by backend)
+            fileName: attachment.name,
+            fileType: mediaType
+          };
+      });
     }
 
     this.http.post<any>(apiUrl, payload).subscribe({

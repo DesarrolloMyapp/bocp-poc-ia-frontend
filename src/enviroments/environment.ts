@@ -13,7 +13,7 @@ export const environment = {
   api:"https://4tr7zmxsvd.execute-api.us-east-1.amazonaws.com/dev/bocppocia-",
   domainUrl: "http://localhost:9100/",
   // apiregistry: 'https://6d6j5r4cdl.execute-api.us-east-1.amazonaws.com/',
-  agentAliasId: 'I2BKOIJ8LT',
+  agentAliasId: 'UNRFTUXOKK',
   userId: 'GS1ImagenesUser',
   agentId: 'B96VRZQ2ZS'
 }
