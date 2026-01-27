@@ -18,6 +18,7 @@ interface Message {
   sender: 'user' | 'bot';
   time: Date;
   attachments?: Attachment[];
+  apiResponse?: any;
 }
 
 @Component({
@@ -42,11 +43,17 @@ export class ChatComponent implements OnInit {
   showAttachments: boolean = false;
   currentUploadType: 'pdf' | 'excel' | 'image' | null = null;
   pendingAttachments: Attachment[] = [];
+  uploadedFiles: any[] = [];
+  showImagePreview: boolean = false;
+  previewImageUrl: string = '';
+  sessionId: string = '';
 
   ngOnInit() {
     if (this.isFullScreen) {
       this.isOpen = true;
     }
+    // Generar sessionId único para la sesión
+    this.sessionId = this.generateSessionId();
   }
 
   toggleChat() {
@@ -57,6 +64,16 @@ export class ChatComponent implements OnInit {
 
   toggleAttachments() {
     this.showAttachments = !this.showAttachments;
+  }
+
+  openImagePreview(imageUrl: string) {
+    this.previewImageUrl = imageUrl;
+    this.showImagePreview = true;
+  }
+
+  closeImagePreview() {
+    this.showImagePreview = false;
+    this.previewImageUrl = '';
   }
 
   getAcceptTypes(): string {
@@ -125,7 +142,7 @@ export class ChatComponent implements OnInit {
     }, 1500);
   }
 
-  sendMessage() {
+  async sendMessage() {
     if (this.newMessage.trim() || this.pendingAttachments.length > 0) {
       const userMessage = this.newMessage;
       const attachments = [...this.pendingAttachments]; 
@@ -144,11 +161,28 @@ export class ChatComponent implements OnInit {
       
       this.newMessage = '';
       this.pendingAttachments = [];
-      this.callBedrockAPI(userMessage, attachments);
+
+      // Si hay archivos adjuntos, subirlos a S3 primero
+      if (attachments.length > 0) {
+        try {
+          const uploadedFilesData = await this.uploadFilesToS3(attachments);
+          this.callBedrockAPI(userMessage, uploadedFilesData);
+        } catch (error) {
+          console.error('Error al subir archivos:', error);
+          this.messages.push({
+            text: 'Error al cargar los archivos. Por favor, intenta de nuevo.',
+            sender: 'bot',
+            time: new Date()
+          });
+        }
+      } else {
+        // Si no hay archivos nuevos, enviar solo el mensaje
+        this.callBedrockAPI(userMessage, []);
+      }
     }
   }
 
-  callBedrockAPI(message: string, attachments: Attachment[] = []) {
+  callBedrockAPI(message: string, uploadedFilesData: any[] = []) {
     this.isProcessing = true;
     
     const apiUrl = `${environment.api}bedrock/prompt`;
@@ -159,30 +193,25 @@ export class ChatComponent implements OnInit {
       userId: environment.userId,
       agentId: environment.agentId,
       agentAliasId: environment.agentAliasId,
+      sessionId: this.sessionId,
       fileIds: []
     };
 
-    // Solo agregar attachments si existen
-    if (attachments && attachments.length > 0) {
-      payload.attachments = attachments.map(attachment => {
-          // Determine mime type
-          let mediaType = 'application/octet-stream';
-          if (attachment.type === 'pdf') mediaType = 'application/pdf';
-          else if (attachment.type === 'excel') mediaType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
-          else if (attachment.type === 'image') {
-            const extension = attachment.name.split('.').pop()?.toLowerCase();
-            if (extension === 'png') mediaType = 'image/png';
-            else if (extension === 'jpg' || extension === 'jpeg') mediaType = 'image/jpeg';
-            else if (extension === 'webp') mediaType = 'image/webp';
-            else mediaType = 'image/jpeg'; 
-          }
-          
-          return {
-            base64: attachment.url, // Backend expects full base64 (or without prefix, it handles both)
-            fileName: attachment.name,
-            fileType: mediaType
-          };
-      });
+    // Si hay archivos recién subidos, usar sus s3Uri
+    if (uploadedFilesData && uploadedFilesData.length > 0) {
+      payload.attachments = uploadedFilesData.map(file => ({
+        fileName: file.fileName,
+        fileType: file.fileType,
+        s3Uri: file.s3Uri
+      }));
+    }
+    // Si NO hay archivos nuevos pero SÍ hay uploadedFiles previos, enviar con s3Uri
+    else if (this.uploadedFiles && this.uploadedFiles.length > 0) {
+      payload.attachments = this.uploadedFiles.map(file => ({
+        fileName: file.fileName,
+        fileType: file.fileType,
+        s3Uri: file.s3Uri
+      }));
     }
 
     this.http.post<any>(apiUrl, payload).subscribe({
@@ -203,11 +232,17 @@ export class ChatComponent implements OnInit {
         // Mapear la respuesta correctamente desde la estructura de la API
         const botResponse = parsedResponse.records?.response || parsedResponse.response || parsedResponse.message || 'Respuesta recibida';
         
-        // Agregar la respuesta del bot
+        // Guardar uploadedFiles para reutilizar en próximas consultas
+        if (parsedResponse.records?.uploadedFiles && parsedResponse.records.uploadedFiles.length > 0) {
+          this.uploadedFiles = parsedResponse.records.uploadedFiles;
+        }
+        
+        // Agregar la respuesta del bot con la respuesta completa del API
         this.messages.push({
           text: botResponse,
           sender: 'bot',
-          time: new Date()
+          time: new Date(),
+          apiResponse: parsedResponse.records || parsedResponse
         });
       },
       error: (error) => {
@@ -221,5 +256,148 @@ export class ChatComponent implements OnInit {
         });
       }
     });
+  }
+
+  // Obtener URLs prefirmadas del backend
+  async getPresignedUrls(files: Attachment[]): Promise<any> {
+    const apiUrl = `${environment.api}bedrock/upload`;
+    
+    const filesData = files.map(file => {
+      let fileType = 'application/octet-stream';
+      if (file.type === 'pdf') fileType = 'application/pdf';
+      else if (file.type === 'excel') fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+      else if (file.type === 'image') {
+        const extension = file.name.split('.').pop()?.toLowerCase();
+        if (extension === 'png') fileType = 'image/png';
+        else if (extension === 'jpg' || extension === 'jpeg') fileType = 'image/jpeg';
+        else if (extension === 'webp') fileType = 'image/webp';
+        else fileType = 'image/jpeg';
+      }
+      
+      return {
+        fileName: file.name,
+        fileType: fileType
+      };
+    });
+
+    const payload = {
+      sessionId: this.sessionId,
+      files: filesData
+    };
+
+    const response = await this.http.post<any>(apiUrl, payload).toPromise();
+    
+    // Parsear el body si viene como string
+    if (response && response.body && typeof response.body === 'string') {
+      try {
+        return JSON.parse(response.body);
+      } catch (e) {
+        console.error('Error al parsear body:', e);
+        return response;
+      }
+    }
+    
+    return response;
+  }
+
+  // Subir archivos a S3 usando URLs prefirmadas
+  async uploadFilesToS3(attachments: Attachment[]): Promise<any[]> {
+    try {
+      // 1. Obtener URLs prefirmadas
+      const response = await this.getPresignedUrls(attachments);
+      
+      if (!response.result || !response.records?.uploadUrls) {
+        throw new Error('No se pudieron obtener las URLs prefirmadas');
+      }
+
+      const uploadUrls = response.records.uploadUrls;
+      const uploadPromises: Promise<any>[] = [];
+
+      // 2. Subir cada archivo a S3
+      for (let i = 0; i < attachments.length; i++) {
+        const attachment = attachments[i];
+        const urlData = uploadUrls[i];
+
+        if (attachment.file && urlData.uploadUrl) {
+          // Convertir base64 a Blob si es necesario
+          const file = attachment.file;
+          
+          // Subir usando PUT a la URL prefirmada
+          const uploadPromise = this.http.put(urlData.uploadUrl, file, {
+            headers: {
+              'Content-Type': urlData.fileType
+            }
+          }).toPromise();
+
+          uploadPromises.push(uploadPromise);
+        }
+      }
+
+      // 3. Esperar a que todos los archivos se suban
+      await Promise.all(uploadPromises);
+
+      // 4. Guardar los datos de archivos subidos y retornarlos
+      this.uploadedFiles = uploadUrls.map((url: any) => ({
+        fileName: url.fileName,
+        fileType: url.fileType,
+        s3Uri: url.s3Uri,
+        s3Url: url.s3Url,
+        s3Key: url.s3Key
+      }));
+
+      return this.uploadedFiles;
+    } catch (error) {
+      console.error('Error en uploadFilesToS3:', error);
+      throw error;
+    }
+  }
+
+  // Generar un UUID para sessionId
+  generateSessionId(): string {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      const r = Math.random() * 16 | 0;
+      const v = c === 'x' ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
+    });
+  }
+
+  // Descargar respuesta del API como JSON
+  downloadJSON(message: Message) {
+    if (!message.apiResponse) return;
+
+    // Preparar el objeto JSON con la estructura completa
+    const jsonData = {
+      sessionId: message.apiResponse.sessionId || this.sessionId,
+      timestamp: message.time.toISOString(),
+      conversationId: message.apiResponse.conversationId,
+      prompt: message.apiResponse.prompt || '',
+      response: message.text,
+      uploadedFiles: message.apiResponse.uploadedFiles || [],
+      agentId: message.apiResponse.agentId,
+      method: message.apiResponse.method
+    };
+
+    // Convertir a string JSON con formato legible
+    const jsonString = JSON.stringify(jsonData, null, 2);
+    
+    // Crear un Blob con el contenido JSON
+    const blob = new Blob([jsonString], { type: 'application/json' });
+    
+    // Crear un enlace de descarga
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    
+    // Generar nombre del archivo con timestamp
+    const fileName = `analisis_${message.apiResponse.sessionId || 'chat'}_${Date.now()}.json`;
+    link.download = fileName;
+    
+    // Ejecutar la descarga
+    document.body.appendChild(link);
+    link.click();
+    
+    // Limpiar
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
   }
 }

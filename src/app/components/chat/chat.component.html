@@ -13,13 +13,25 @@
         
         <!-- Text Content -->
         <div class="message-content" *ngIf="msg.text" [innerHTML]="formatMessage(msg.text)"></div>
+        
+        <!-- Botón de descarga JSON (solo para mensajes del bot con apiResponse) -->
+        <!-- <button *ngIf="msg.sender === 'bot' && msg.apiResponse" 
+                mat-icon-button 
+                class="download-json-btn" 
+                (click)="downloadJSON(msg)"
+                matTooltip="Descargar análisis en JSON">
+          <i-tabler name="file-type-json" class="icon-18"></i-tabler>
+        </button> -->
 
         <!-- Attachment Content -->
         <div class="message-attachments" *ngIf="msg.attachments && msg.attachments.length > 0">
            <div class="attachment-item" *ngFor="let attachment of msg.attachments">
               <!-- Image Preview -->
-              <div *ngIf="attachment.type === 'image'" class="image-attachment">
-                <img [src]="attachment.url" [alt]="attachment.name">
+              <div *ngIf="attachment.type === 'image' && attachment.url" class="image-attachment" (click)="openImagePreview(attachment.url)">
+                <img [src]="attachment.url" [alt]="attachment.name" style="width: 250px; height: 250px;">
+                <div class="image-overlay">
+                  <i-tabler name="zoom-in" class="icon-20"></i-tabler>
+                </div>
               </div>
 
               <!-- File Preview (PDF/Excel) -->
@@ -99,5 +111,15 @@
         </button>
       </mat-form-field>
     </div>
+  </div>
+</div>
+
+<!-- Image Preview Modal -->
+<div class="image-preview-modal" *ngIf="showImagePreview" (click)="closeImagePreview()">
+  <div class="modal-content">
+    <button mat-icon-button class="close-btn" (click)="closeImagePreview()">
+      <i-tabler name="x" class="icon-24"></i-tabler>
+    </button>
+    <img [src]="previewImageUrl" alt="Vista previa">
   </div>
 </div>
